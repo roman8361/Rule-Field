@@ -229,69 +229,71 @@ export default function RouletteField() {
       {/* ── ЗАДАНИЕ panel ───────────────────────────────────────────────── */}
       <div style={styles.zadanieBox}>
 
-        {/* Winning number */}
-        <div style={styles.infoCell}>
-          <div style={styles.infoCellLabel}>Выпавший номер</div>
-          <div style={styles.infoCellValue}>
-            {round ? round.winningNumber : "—"}
+        {/* ── Left: info ── */}
+        <div style={styles.infoGroup}>
+          <div style={styles.infoCell}>
+            <div style={styles.infoCellLabel}>Выпавший номер</div>
+            <div style={styles.infoCellValue}>
+              {round ? round.winningNumber : "—"}
+            </div>
           </div>
+
+          {round && (phase === "playing" || phase === "checked") && (
+            <div style={styles.betsBox}>
+              {round.bets.map((bet, i) => (
+                <div key={i} style={styles.betRow}>
+                  <span style={{ ...styles.betChip, background: chipColor(bet.denomination), color: chipTextColor(bet.denomination) }}>
+                    {bet.denomination}
+                  </span>
+                  <span style={styles.betLabel}>{bet.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Bets breakdown */}
-        {round && (phase === "playing" || phase === "checked") && (
-          <div style={styles.betsBox}>
-            {round.bets.map((bet, i) => (
-              <div key={i} style={styles.betRow}>
-                <span style={{ ...styles.betChip, background: chipColor(bet.denomination), color: chipTextColor(bet.denomination) }}>
-                  {bet.denomination}
-                </span>
-                <span style={styles.betLabel}>{bet.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Divider */}
+        <div style={styles.divider} />
 
-        {/* SPIN button */}
-        <button
-          style={{ ...styles.btnSpin, opacity: phase === "spinning" ? 0.5 : 1, cursor: phase === "spinning" ? "not-allowed" : "pointer" }}
-          onClick={handleSpin}
-          disabled={phase === "spinning"}
-        >
-          SPIN
-        </button>
-
-        {/* Answer input + check */}
-        <div style={styles.answerRow}>
-          <input
-            ref={inputRef}
-            type="number"
-            value={userInput}
-            onChange={e => setUserInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Введите сумму"
-            style={styles.input}
-            disabled={phase !== "playing"}
-          />
+        {/* ── Right: controls ── */}
+        <div style={styles.controlGroup}>
           <button
-            style={{ ...styles.btnCheck, opacity: phase !== "playing" || !userInput.trim() ? 0.5 : 1, cursor: phase !== "playing" || !userInput.trim() ? "not-allowed" : "pointer" }}
-            onClick={handleCheck}
-            disabled={phase !== "playing" || !userInput.trim()}
+            style={{ ...styles.btnSpin, opacity: phase === "spinning" ? 0.5 : 1, cursor: phase === "spinning" ? "not-allowed" : "pointer" }}
+            onClick={handleSpin}
+            disabled={phase === "spinning"}
           >
-            ПРОВЕРИТЬ
+            SPIN
           </button>
-        </div>
 
-        {/* Result status */}
-        {checkResult && (
-          <div style={{
-            ...styles.resultStatus,
-            color: checkResult === "correct" ? "#4caf50" : "#e53935",
-          }}>
-            {checkResult === "correct"
-              ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
-              : `❌ Неверно.`}
+          <div style={styles.answerRow}>
+            <input
+              ref={inputRef}
+              type="number"
+              value={userInput}
+              onChange={e => setUserInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Сумма"
+              style={styles.input}
+              disabled={phase !== "playing"}
+            />
+            <button
+              style={{ ...styles.btnCheck, opacity: phase !== "playing" || !userInput.trim() ? 0.5 : 1, cursor: phase !== "playing" || !userInput.trim() ? "not-allowed" : "pointer" }}
+              onClick={handleCheck}
+              disabled={phase !== "playing" || !userInput.trim()}
+            >
+              ПРОВЕРИТЬ
+            </button>
           </div>
-        )}
+
+          {checkResult && (
+            <div style={{
+              ...styles.resultStatus,
+              color: checkResult === "correct" ? "#4caf50" : "#e53935",
+            }}>
+              {checkResult === "correct" ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}` : `❌ Неверно.`}
+            </div>
+          )}
+        </div>
 
       </div>
     </div>
@@ -324,13 +326,35 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "960px",
     background: "#0d0d0d",
     border: "1px solid #d4a832",
-    borderRadius: "6px",
-    padding: "10px 16px",
+    borderRadius: "8px",
+    padding: "10px 20px",
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: "10px",
+    gap: "16px",
     flexWrap: "nowrap",
+  },
+  infoGroup: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "12px",
+    flexShrink: 0,
+  },
+  divider: {
+    width: "1px",
+    alignSelf: "stretch",
+    background: "#d4a832",
+    opacity: 0.3,
+    flexShrink: 0,
+  },
+  controlGroup: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "12px",
+    flex: 1,
+    minWidth: 0,
   },
   zadanieTitle: {
     fontFamily: "'Times New Roman', Georgia, serif",
