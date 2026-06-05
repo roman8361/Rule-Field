@@ -103,7 +103,7 @@ function makeSixLine(leftCol: number): BetDef {
   ].sort((a, b) => a - b);
   return {
     type: "sixline", numbers: nums, payout: 5, denomination: 1,
-    chipX: COL_X[leftCol + 1], chipY: ROW_Y[0],
+    chipX: COL_X[leftCol + 1], chipY: ROW_Y[3],
     label: `Six-Line ${nums[0]}-${nums[nums.length - 1]}`,
   };
 }

@@ -220,7 +220,6 @@ export default function RouletteField() {
                     {bet.denomination}
                   </span>
                   <span style={styles.betLabel}>{bet.label}</span>
-                  <span style={styles.betCalc}>× {bet.payout} = {bet.denomination * bet.payout}</span>
                 </div>
               ))}
             </div>
