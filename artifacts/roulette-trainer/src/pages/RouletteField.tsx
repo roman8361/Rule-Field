@@ -140,18 +140,19 @@ export default function RouletteField() {
     <div style={styles.page}>
 
       {/* ── Field wrapper ───────────────────────────────────────────────── */}
-      <div style={{ position: "relative", width: "100%", maxWidth: W, aspectRatio: `${W} / ${H}` }}>
+      {/* CROP_BOT: clip bottom green strip (~70px out of 831px) */}
+      <div style={{ position: "relative", width: "100%", maxWidth: W, aspectRatio: `${W} / ${H - 70}`, overflow: "hidden" }}>
         <img
           src={rouletteImg}
           alt="Рулеточное поле"
-          style={{ display: "block", width: "100%", height: "100%", userSelect: "none",
+          style={{ display: "block", width: "100%", height: "auto", userSelect: "none",
                    opacity: phase === "spinning" ? 0.5 : 1, transition: "opacity 0.3s" }}
           draggable={false}
         />
 
         {/* SVG overlay */}
         <svg
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "auto", pointerEvents: "none" }}
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
         >
