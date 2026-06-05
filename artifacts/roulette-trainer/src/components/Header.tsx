@@ -41,7 +41,7 @@ export default function Header() {
           <RouletteWheelIcon size={38} />
           <div style={s.logoText}>
             <div style={s.logoTitle}>CHICAGO</div>
-            <div style={s.logoSub}>DEALER TRAINER&nbsp;•&nbsp;1932</div>
+            <div style={s.logoSub}>DEALER TRAINER&nbsp;•&nbsp;1932&nbsp;•&nbsp;Тренировочный центр дилеров мы существуем с 1932 года</div>
           </div>
         </div>
 
