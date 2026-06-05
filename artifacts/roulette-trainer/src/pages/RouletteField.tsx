@@ -203,12 +203,6 @@ export default function RouletteField() {
               {round ? round.winningNumber : "—"}
             </div>
           </div>
-          <div style={styles.infoCell}>
-            <div style={styles.infoCellLabel}>Фишек в задаче</div>
-            <div style={styles.infoCellValue}>
-              {round ? round.bets.length : "—"}
-            </div>
-          </div>
         </div>
 
         {/* Bets breakdown (показываем только когда есть раунд) */}
