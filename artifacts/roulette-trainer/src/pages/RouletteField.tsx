@@ -1,105 +1,71 @@
 import { useState } from "react";
-import rouletteImg from "@assets/rulet_field_1780658722589.png";
+import rouletteImg from "@/assets/roulette_field.png";
 
-const BASE_W = 1894;
-const BASE_H = 830;
+// ─── Image natural size ───────────────────────────────────────────────────────
+const W = 1893;
+const H = 831;
 
-interface Zone {
-  number: number;
-  points: { x: number; y: number }[];
-  centerX: number;
-  centerY: number;
-}
+// ─── Grid measurements (pixel-perfect from gold-line scan) ───────────────────
+//
+//  Horizontal lines:   y = 112  |  240  |  371  |  502
+//  Row 0 (top):    y 112 – 240   →  3, 6, 9, …, 36
+//  Row 1 (mid):    y 240 – 371   →  2, 5, 8, …, 35
+//  Row 2 (bot):    y 371 – 502   →  1, 4, 7, …, 34
+//
+//  Vertical col boundaries (left edges of each column):
+//  0-cell left : 126
+//  Col 1  left : 243    Col 7  left : 992
+//  Col 2  left : 367    Col 8  left : 1118
+//  Col 3  left : 494    Col 9  left : 1242
+//  Col 4  left : 619    Col 10 left : 1364
+//  Col 5  left : 744    Col 11 left : 1490
+//  Col 6  left : 869    Col 12 left : 1612
+//                        Col 12 right: 1737
 
-function centroid(pts: { x: number; y: number }[]) {
-  const n = pts.length;
-  const x = pts.reduce((s, p) => s + p.x, 0) / n;
-  const y = pts.reduce((s, p) => s + p.y, 0) / n;
-  return { x, y };
-}
+const ROW_Y = [112, 240, 371, 502] as const;   // top, h1, h2, bottom
+const COL_X = [243, 367, 494, 619, 744, 869, 992, 1118, 1242, 1364, 1490, 1612, 1737] as const;
 
-function pStr(pts: { x: number; y: number }[]) {
-  return pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-}
+const ZERO_LEFT  = 126;
+const ZERO_RIGHT = 243;
+const ZERO_TOP   = 112;
+const ZERO_BOT   = 502;
+const CORNER     = 22;  // corner cut for the rounded top-left of the 0 cell
 
-/*
-  Coordinate system based on the 1894×830 image.
+// ─── Types ───────────────────────────────────────────────────────────────────
+interface Pt { x: number; y: number }
+interface Zone { number: number; points: Pt[]; cx: number; cy: number }
 
-  The roulette table layout (approximate pixel values measured from image):
+function cx(pts: Pt[]) { return pts.reduce((s, p) => s + p.x, 0) / pts.length }
+function cy(pts: Pt[]) { return pts.reduce((s, p) => s + p.y, 0) / pts.length }
+function pts(arr: [number, number][]): Pt[] { return arr.map(([x, y]) => ({ x, y })) }
+function pStr(ps: Pt[]) { return ps.map(p => `${p.x},${p.y}`).join(" ") }
 
-  ┌──────────────────────────────────────────────────────────────────────────────────────┐
-  │  WOOD RAIL (top ≈40px)                                                               │
-  │  ┌───┬──────────────────────────────────────────────────────────────────────┬──────┐ │
-  │  │ 0 │  3  │  6  │  9  │ 12  │ 15  │ 18  │ 21  │ 24  │ 27  │ 30  │ 33  │ 36 │2to1│ │
-  │  │   │  2  │  5  │  8  │ 11  │ 14  │ 17  │ 20  │ 23  │ 26  │ 29  │ 32  │ 35 │    │ │
-  │  │   │  1  │  4  │  7  │ 10  │ 13  │ 16  │ 19  │ 22  │ 25  │ 28  │ 31  │ 34 │    │ │
-  │  └───┴──────────────────────────────────────────────────────────────────────┴──────┘ │
-  │  ...dozen and even-money rows below...                                               │
-  └──────────────────────────────────────────────────────────────────────────────────────┘
-
-  Measured approximate boundaries (at 1894×830 resolution):
-    Zero left edge  : x =  74
-    Zero right edge : x = 228
-    Grid left edge  : x = 228
-    Grid right edge : x = 1760  (before the 2:1 column)
-    Grid top        : y =  90
-    Grid bottom     : y = 472
-
-  Perspective: the table top is very slightly narrower than the bottom.
-  We apply a small linear taper of ~8px total across the width.
-*/
-
-const ZERO_LEFT = 74;
-const ZERO_RIGHT = 228;
-const ZERO_TOP = 90;
-const ZERO_BOT = 472;
-
-const GRID_LEFT = 228;
-const GRID_RIGHT = 1760;
-const GRID_TOP = 90;
-const GRID_BOT = 472;
-
-const NUM_COLS = 12;
-const NUM_ROWS = 3;
-
-const COL_W = (GRID_RIGHT - GRID_LEFT) / NUM_COLS;
-const ROW_H = (GRID_BOT - GRID_TOP) / NUM_ROWS;
-
-const PERSPECTIVE_TAPER = 8;
-
-function colX(col: number, row: number, side: "left" | "right"): number {
-  const xBase = GRID_LEFT + col * COL_W + (side === "right" ? COL_W : 0);
-  const frac = (row * ROW_H) / (GRID_BOT - GRID_TOP);
-  const offset = PERSPECTIVE_TAPER * frac;
-  return xBase + offset;
-}
-
+// ─── Build all 37 zones ──────────────────────────────────────────────────────
 function buildZones(): Zone[] {
   const zones: Zone[] = [];
 
-  const zeroPts = [
-    { x: ZERO_LEFT, y: ZERO_TOP },
-    { x: ZERO_RIGHT, y: ZERO_TOP },
-    { x: ZERO_RIGHT, y: ZERO_BOT },
-    { x: ZERO_LEFT, y: ZERO_BOT },
-  ];
-  const zc = centroid(zeroPts);
-  zones.push({ number: 0, points: zeroPts, centerX: zc.x, centerY: zc.y });
+  // ── Zero cell (6-point polygon: cut top-left corner) ──
+  const zp = pts([
+    [ZERO_LEFT + CORNER, ZERO_TOP],
+    [ZERO_RIGHT,         ZERO_TOP],
+    [ZERO_RIGHT,         ZERO_BOT],
+    [ZERO_LEFT,          ZERO_BOT],
+    [ZERO_LEFT,          ZERO_TOP + CORNER],
+  ]);
+  zones.push({ number: 0, points: zp, cx: cx(zp), cy: cy(zp) });
 
-  for (let col = 0; col < NUM_COLS; col++) {
-    for (let row = 0; row < NUM_ROWS; row++) {
-      const num = 3 * col + (NUM_ROWS - row);
-      const y1 = GRID_TOP + row * ROW_H;
-      const y2 = GRID_TOP + (row + 1) * ROW_H;
-
-      const pts = [
-        { x: colX(col, row, "left"), y: y1 },
-        { x: colX(col, row, "right"), y: y1 },
-        { x: colX(col, row + 1, "right"), y: y2 },
-        { x: colX(col, row + 1, "left"), y: y2 },
-      ];
-      const c = centroid(pts);
-      zones.push({ number: num, points: pts, centerX: c.x, centerY: c.y });
+  // ── Numbers 1–36 ──
+  // col 0-11, row 0-2
+  // number = 3*(col+1) - row   (row 0=top, row 2=bottom)
+  for (let col = 0; col < 12; col++) {
+    for (let row = 0; row < 3; row++) {
+      const num = 3 * (col + 1) - row;
+      const x1 = COL_X[col];
+      const x2 = COL_X[col + 1];
+      const y1 = ROW_Y[row];
+      const y2 = ROW_Y[row + 1];
+      const p = pts([[x1, y1], [x2, y1], [x2, y2], [x1, y2]]);
+      zones.push({ number: num, points: p, cx: (x1 + x2) / 2, cy: (y1 + y2) / 2 });
     }
   }
 
@@ -108,45 +74,63 @@ function buildZones(): Zone[] {
 
 export const rouletteZones: Zone[] = buildZones();
 
+// ─── Component ───────────────────────────────────────────────────────────────
 export default function RouletteField() {
   const [showGrid, setShowGrid] = useState(false);
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 gap-4">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0f0f0f",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+        gap: "16px",
+      }}
+    >
+      {/* Image + SVG overlay wrapper */}
       <div
-        className="relative w-full"
-        style={{ maxWidth: BASE_W, aspectRatio: `${BASE_W}/${BASE_H}` }}
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: W,
+          aspectRatio: `${W} / ${H}`,
+        }}
       >
         <img
           src={rouletteImg}
           alt="Рулеточное поле"
-          className="block w-full h-full select-none"
+          style={{ display: "block", width: "100%", height: "100%", userSelect: "none" }}
           draggable={false}
         />
 
+        {/* SVG overlay — same viewBox as image */}
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox={`0 0 ${BASE_W} ${BASE_H}`}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+          viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {showGrid &&
-            rouletteZones.map((zone) => (
+            rouletteZones.map(zone => (
               <g key={zone.number}>
                 <polygon
                   points={pStr(zone.points)}
-                  fill="rgba(255, 230, 0, 0.18)"
-                  stroke="#ffe600"
-                  strokeWidth="2.5"
+                  fill="rgba(255, 220, 0, 0.20)"
+                  stroke="#ffd700"
+                  strokeWidth="2"
                 />
                 <text
-                  x={zone.centerX}
-                  y={zone.centerY}
+                  x={zone.cx}
+                  y={zone.cy}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize="22"
+                  fontSize={zone.number === 0 ? 28 : 22}
                   fontWeight="bold"
-                  fill="#ffe600"
+                  fill="#ffd700"
                   stroke="#000"
                   strokeWidth="0.8"
                   paintOrder="stroke"
@@ -159,15 +143,20 @@ export default function RouletteField() {
         </svg>
       </div>
 
+      {/* Toggle button */}
       <button
-        onClick={() => setShowGrid((v) => !v)}
-        className="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-150"
+        onClick={() => setShowGrid(v => !v)}
         style={{
-          background: showGrid ? "#ffe600" : "#1a1a1a",
-          color: showGrid ? "#111" : "#ffe600",
-          border: "2px solid #ffe600",
-          cursor: "pointer",
+          padding: "8px 28px",
+          borderRadius: "8px",
+          fontWeight: 600,
+          fontSize: "14px",
           letterSpacing: "0.05em",
+          cursor: "pointer",
+          transition: "all 0.15s",
+          background: showGrid ? "#ffd700" : "#1a1a1a",
+          color: showGrid ? "#111" : "#ffd700",
+          border: "2px solid #ffd700",
         }}
       >
         {showGrid ? "Скрыть сетку" : "Показать сетку"}
