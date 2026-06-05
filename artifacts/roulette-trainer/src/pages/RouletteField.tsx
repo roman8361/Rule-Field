@@ -450,8 +450,7 @@ const styles: Record<string, React.CSSProperties> = {
   answerRow: {
     display: "flex",
     gap: "6px",
-    flex: 1,
-    minWidth: 0,
+    flexShrink: 0,
   },
   input: {
     flex: 1,
