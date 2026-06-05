@@ -159,11 +159,13 @@ export default function RouletteField() {
     if (val === round.correctAnswer) {
       setCheckResult("correct");
       playCorrectSound();
+      setPhase("checked");
     } else {
       setCheckResult("wrong");
       playWrongSound();
+      setUserInput("");
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
-    setPhase("checked");
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
