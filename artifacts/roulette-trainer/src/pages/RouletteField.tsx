@@ -192,8 +192,6 @@ export default function RouletteField() {
       <div style={styles.zadanieBox}>
 
         {/* Title */}
-        <div style={styles.zadanieTitle}>ЗАДАНИЕ</div>
-        <div style={styles.zadanieDivider} />
 
         {/* Winning number + chip count row */}
         <div style={styles.infoRow}>
