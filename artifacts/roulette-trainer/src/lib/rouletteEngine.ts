@@ -79,7 +79,7 @@ function makeStreet(col: number): BetDef {
   const nums = [numAt(col, 0), numAt(col, 1), numAt(col, 2)].sort((a, b) => a - b);
   return {
     type: "street", numbers: nums, payout: 11, denomination: 1,
-    chipX: colCenterX(col), chipY: ROW_Y[0],
+    chipX: colCenterX(col), chipY: ROW_Y[3],
     label: `Street ${nums.join("-")}`,
   };
 }
@@ -178,10 +178,10 @@ export function generateRound(): GameRound {
   return { winningNumber, bets, correctAnswer };
 }
 
-export function chipColor(denomination: number): string {
-  return ["", "#e8e8e0", "#1a56c4", "#1a8c1a", "#c41a1a"][denomination] ?? "#888";
+export function chipColor(_denomination: number): string {
+  return "#1a56c4";
 }
 
-export function chipTextColor(denomination: number): string {
-  return denomination === 1 ? "#111" : "#fff";
+export function chipTextColor(_denomination: number): string {
+  return "#fff";
 }

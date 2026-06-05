@@ -47,7 +47,7 @@ function buildZones() {
 const ZONES = buildZones();
 
 // ─── Chip SVG component ───────────────────────────────────────────────────────
-const CHIP_R = 24;
+const CHIP_R = 32;
 
 function Chip({ bet }: { bet: BetDef }) {
   const fill = chipColor(bet.denomination);
@@ -64,7 +64,7 @@ function Chip({ bet }: { bet: BetDef }) {
       <text
         x={bet.chipX} y={bet.chipY}
         textAnchor="middle" dominantBaseline="central"
-        fontSize="15" fontWeight="bold" fill={text}
+        fontSize="20" fontWeight="bold" fill={text}
         style={{ fontFamily: "sans-serif", userSelect: "none" }}
       >
         {bet.denomination}
