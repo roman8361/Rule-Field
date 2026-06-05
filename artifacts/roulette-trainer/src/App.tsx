@@ -1,9 +1,11 @@
 import Header from "@/components/Header";
 import RouletteField from "@/pages/RouletteField";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: "#0d0d0d", display: "flex", flexDirection: "column" }}>
+      <Toaster position="top-center" richColors duration={2500} />
       <Header />
       <div style={{
         width: "100%",

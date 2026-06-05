@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import rouletteImg from "@/assets/roulette_field.png";
 import { generateRound, chipColor, chipTextColor, type BetDef, type GameRound, ROW_Y, COL_X } from "@/lib/rouletteEngine";
 import { playSpinSound, playCorrectSound, playWrongSound } from "@/lib/sounds";
@@ -160,9 +161,11 @@ export default function RouletteField() {
       setCheckResult("correct");
       playCorrectSound();
       setPhase("checked");
+      toast.success(`✅ Верно! Правильный ответ: ${round.correctAnswer}`);
     } else {
       setCheckResult("wrong");
       playWrongSound();
+      toast.error("❌ Неверно. Попробуй ещё раз.");
       setUserInput("");
       setTimeout(() => inputRef.current?.focus(), 50);
     }
@@ -285,14 +288,6 @@ export default function RouletteField() {
             </button>
           </div>
 
-          {checkResult && (
-            <div style={{
-              ...styles.resultStatus,
-              color: checkResult === "correct" ? "#4caf50" : "#e53935",
-            }}>
-              {checkResult === "correct" ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}` : `❌ Неверно.`}
-            </div>
-          )}
         </div>
 
       </div>
