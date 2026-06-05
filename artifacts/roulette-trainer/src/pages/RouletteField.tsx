@@ -191,19 +191,15 @@ export default function RouletteField() {
       {/* ── ЗАДАНИЕ panel ───────────────────────────────────────────────── */}
       <div style={styles.zadanieBox}>
 
-        {/* Title */}
-
-        {/* Winning number + chip count row */}
-        <div style={styles.infoRow}>
-          <div style={styles.infoCell}>
-            <div style={styles.infoCellLabel}>Выпавший номер</div>
-            <div style={styles.infoCellValue}>
-              {round ? round.winningNumber : "—"}
-            </div>
+        {/* Winning number */}
+        <div style={styles.infoCell}>
+          <div style={styles.infoCellLabel}>Выпавший номер</div>
+          <div style={styles.infoCellValue}>
+            {round ? round.winningNumber : "—"}
           </div>
         </div>
 
-        {/* Bets breakdown (показываем только когда есть раунд) */}
+        {/* Bets breakdown */}
         {round && (phase === "playing" || phase === "checked") && (
           <div style={styles.betsBox}>
             {round.bets.map((bet, i) => (
@@ -226,48 +222,45 @@ export default function RouletteField() {
           SPIN
         </button>
 
-        {/* Answer block */}
-        <div style={styles.answerBlock}>
-          <div style={styles.answerLabel}>Ваш ответ</div>
-          <div style={styles.answerRow}>
-            <input
-              ref={inputRef}
-              type="number"
-              value={userInput}
-              onChange={e => setUserInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Введите сумму"
-              style={styles.input}
-              disabled={phase !== "playing"}
-            />
-            <button
-              style={{ ...styles.btnCheck, opacity: phase !== "playing" || !userInput.trim() ? 0.5 : 1, cursor: phase !== "playing" || !userInput.trim() ? "not-allowed" : "pointer" }}
-              onClick={handleCheck}
-              disabled={phase !== "playing" || !userInput.trim()}
-            >
-              ПРОВЕРИТЬ
-            </button>
-          </div>
-
-          {/* Result status */}
-          {checkResult && (
-            <div style={{
-              ...styles.resultStatus,
-              color: checkResult === "correct" ? "#4caf50" : "#e53935",
-            }}>
-              {checkResult === "correct"
-                ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
-                : `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`}
-            </div>
-          )}
+        {/* Answer input + check */}
+        <div style={styles.answerRow}>
+          <input
+            ref={inputRef}
+            type="number"
+            value={userInput}
+            onChange={e => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Введите сумму"
+            style={styles.input}
+            disabled={phase !== "playing"}
+          />
+          <button
+            style={{ ...styles.btnCheck, opacity: phase !== "playing" || !userInput.trim() ? 0.5 : 1, cursor: phase !== "playing" || !userInput.trim() ? "not-allowed" : "pointer" }}
+            onClick={handleCheck}
+            disabled={phase !== "playing" || !userInput.trim()}
+          >
+            ПРОВЕРИТЬ
+          </button>
         </div>
+
+        {/* Result status */}
+        {checkResult && (
+          <div style={{
+            ...styles.resultStatus,
+            color: checkResult === "correct" ? "#4caf50" : "#e53935",
+          }}>
+            {checkResult === "correct"
+              ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
+              : `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`}
+          </div>
+        )}
 
         {/* Grid toggle */}
         <button
           onClick={() => setShowGrid(v => !v)}
           style={{ ...styles.btnGrid, background: showGrid ? "#d4a832" : "transparent", color: showGrid ? "#111" : "#d4a832" }}
         >
-          {showGrid ? "Скрыть сетку" : "Показать сетку"}
+          {showGrid ? "Скрыть" : "Сетку"}
         </button>
       </div>
     </div>
@@ -297,14 +290,16 @@ const styles: Record<string, React.CSSProperties> = {
   // ── ЗАДАНИЕ box ──────────────────────────────────────────────────────────
   zadanieBox: {
     width: "100%",
-    maxWidth: "560px",
+    maxWidth: "960px",
     background: "#0d0d0d",
     border: "1px solid #d4a832",
     borderRadius: "6px",
-    padding: "20px 24px 16px",
+    padding: "10px 16px",
     display: "flex",
-    flexDirection: "column",
-    gap: "14px",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "nowrap",
   },
   zadanieTitle: {
     fontFamily: "'Times New Roman', Georgia, serif",
@@ -325,27 +320,28 @@ const styles: Record<string, React.CSSProperties> = {
     gap: "16px",
   },
   infoCell: {
-    flex: 1,
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "2px",
+    flexShrink: 0,
   },
   infoCellLabel: {
-    fontSize: "12px",
+    fontSize: "10px",
     color: "#a0a0a0",
     letterSpacing: "0.03em",
+    whiteSpace: "nowrap",
   },
   infoCellValue: {
     background: "#161616",
     border: "1px solid #d4a832",
     borderRadius: "6px",
-    padding: "10px 0",
-    fontSize: "32px",
+    padding: "4px 14px",
+    fontSize: "22px",
     fontWeight: 800,
     color: "#d4a832",
     textAlign: "center",
     letterSpacing: "0.04em",
-    minHeight: "58px",
+    minWidth: "60px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -356,27 +352,29 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#111",
     border: "1px solid #2a2410",
     borderRadius: "6px",
-    padding: "8px 12px",
+    padding: "4px 10px",
     display: "flex",
     flexDirection: "column",
-    gap: "5px",
+    gap: "3px",
+    flex: 1,
+    minWidth: 0,
   },
   betRow: {
-    display: "flex", alignItems: "center", gap: "10px", fontSize: "13px",
+    display: "flex", alignItems: "center", gap: "8px", fontSize: "12px",
   },
   betChip: {
     display: "inline-flex", alignItems: "center", justifyContent: "center",
-    width: "24px", height: "24px", borderRadius: "50%",
-    fontWeight: 800, fontSize: "11px",
+    width: "20px", height: "20px", borderRadius: "50%",
+    fontWeight: 800, fontSize: "10px",
     border: "1.5px solid #d4a832", flexShrink: 0,
   },
-  betLabel: { flex: 1, color: "#ccc" },
+  betLabel: { flex: 1, color: "#ccc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
 
   // ── SPIN button ───────────────────────────────────────────────────────────
   btnSpin: {
-    width: "100%",
-    padding: "13px 0",
-    fontSize: "16px",
+    flexShrink: 0,
+    padding: "8px 18px",
+    fontSize: "13px",
     fontWeight: 800,
     letterSpacing: "0.2em",
     borderRadius: "6px",
@@ -384,6 +382,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#7a1515",
     color: "#fff",
     transition: "all 0.15s",
+    whiteSpace: "nowrap",
   },
 
   // ── Answer block ──────────────────────────────────────────────────────────
@@ -398,12 +397,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
   answerRow: {
     display: "flex",
-    gap: "10px",
+    gap: "6px",
+    flex: 1,
+    minWidth: 0,
   },
   input: {
     flex: 1,
-    padding: "10px 14px",
-    fontSize: "15px",
+    minWidth: 0,
+    padding: "7px 10px",
+    fontSize: "14px",
     fontWeight: 600,
     borderRadius: "6px",
     border: "1px solid #d4a832",
@@ -412,10 +414,11 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
   },
   btnCheck: {
-    padding: "10px 18px",
-    fontSize: "13px",
+    flexShrink: 0,
+    padding: "7px 12px",
+    fontSize: "12px",
     fontWeight: 700,
-    letterSpacing: "0.1em",
+    letterSpacing: "0.08em",
     borderRadius: "6px",
     border: "1px solid #d4a832",
     background: "transparent",
@@ -424,8 +427,10 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap",
   },
   resultStatus: {
-    fontSize: "13px",
+    fontSize: "12px",
     letterSpacing: "0.02em",
+    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
 
   // ── Grid toggle ───────────────────────────────────────────────────────────
