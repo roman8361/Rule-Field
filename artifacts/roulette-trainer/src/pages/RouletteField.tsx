@@ -291,13 +291,6 @@ export default function RouletteField() {
           </div>
         )}
 
-        {/* Grid toggle */}
-        <button
-          onClick={() => setShowGrid(v => !v)}
-          style={{ ...styles.btnGrid, background: showGrid ? "#d4a832" : "transparent", color: showGrid ? "#111" : "#d4a832" }}
-        >
-          {showGrid ? "Скрыть" : "Сетку"}
-        </button>
       </div>
     </div>
   );
