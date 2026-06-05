@@ -431,10 +431,10 @@ const styles: Record<string, React.CSSProperties> = {
   // ── Grid toggle ───────────────────────────────────────────────────────────
   btnGrid: {
     alignSelf: "center",
-    padding: "5px 18px",
-    borderRadius: "6px",
+    padding: "3px 10px",
+    borderRadius: "4px",
     fontWeight: 600,
-    fontSize: "12px",
+    fontSize: "10px",
     letterSpacing: "0.05em",
     cursor: "pointer",
     transition: "all 0.15s",
