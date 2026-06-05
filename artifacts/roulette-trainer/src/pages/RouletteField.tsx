@@ -87,6 +87,41 @@ function WinHighlight({ number }: { number: number }) {
   );
 }
 
+// ─── Roulette wheel SVG icon ──────────────────────────────────────────────────
+function RouletteWheelIcon({ size = 48, spinning = false }: { size?: number; spinning?: boolean }) {
+  const pockets = 37;
+  const r = 46;
+  const innerR = 28;
+  const segments: React.ReactNode[] = [];
+  for (let i = 0; i < pockets; i++) {
+    const a1 = (i / pockets) * 2 * Math.PI - Math.PI / 2;
+    const a2 = ((i + 1) / pockets) * 2 * Math.PI - Math.PI / 2;
+    const x1 = 50 + r * Math.cos(a1), y1 = 50 + r * Math.sin(a1);
+    const x2 = 50 + r * Math.cos(a2), y2 = 50 + r * Math.sin(a2);
+    const xi1 = 50 + innerR * Math.cos(a1), yi1 = 50 + innerR * Math.sin(a1);
+    const xi2 = 50 + innerR * Math.cos(a2), yi2 = 50 + innerR * Math.sin(a2);
+    const RED = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    const num = i === 0 ? 0 : i;
+    const fill = num === 0 ? "#1a6b1a" : RED.includes(num) ? "#8b1a1a" : "#1a1a1a";
+    segments.push(
+      <path key={i}
+        d={`M ${xi1} ${yi1} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} L ${xi2} ${yi2} A ${innerR} ${innerR} 0 0 0 ${xi1} ${yi1} Z`}
+        fill={fill} stroke="#d4a832" strokeWidth="0.6"
+      />
+    );
+  }
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100"
+      style={spinning ? { animation: "spin 0.6s linear infinite" } : undefined}>
+      <circle cx="50" cy="50" r="49" fill="#111" stroke="#d4a832" strokeWidth="1.5" />
+      {segments}
+      <circle cx="50" cy="50" r={innerR - 2} fill="#0d0d0d" stroke="#d4a832" strokeWidth="1" />
+      <circle cx="50" cy="50" r="8" fill="#d4a832" />
+      <circle cx="50" cy="50" r="4" fill="#111" />
+    </svg>
+  );
+}
+
 // ─── Game state type ──────────────────────────────────────────────────────────
 type Phase = "idle" | "spinning" | "playing" | "checked";
 
@@ -183,7 +218,7 @@ export default function RouletteField() {
         {/* Spinning overlay */}
         {phase === "spinning" && (
           <div style={styles.spinOverlay}>
-            <div style={styles.spinBall}>🎰</div>
+            <RouletteWheelIcon size={80} spinning />
             <div style={styles.spinText}>Вращение…</div>
           </div>
         )}
