@@ -188,83 +188,92 @@ export default function RouletteField() {
         )}
       </div>
 
-      {/* ── Bottom UI ───────────────────────────────────────────────────── */}
-      <div style={styles.bottomPanel}>
+      {/* ── ЗАДАНИЕ panel ───────────────────────────────────────────────── */}
+      <div style={styles.zadanieBox}>
 
-        {/* Idle: just SPIN */}
-        {phase === "idle" && (
-          <button style={styles.btnSpin} onClick={handleSpin}>SPIN</button>
-        )}
+        {/* Title */}
+        <div style={styles.zadanieTitle}>ЗАДАНИЕ</div>
+        <div style={styles.zadanieDivider} />
 
-        {/* Spinning: disabled SPIN */}
-        {phase === "spinning" && (
-          <button style={{ ...styles.btnSpin, opacity: 0.5, cursor: "not-allowed" }} disabled>
-            SPIN
-          </button>
-        )}
-
-        {/* Playing / Checked */}
-        {(phase === "playing" || phase === "checked") && round && (
-          <>
-            {/* Winning number */}
-            <div style={styles.winRow}>
-              <span style={styles.winLabel}>Выпавший номер:</span>
-              <span style={styles.winNumber}>{round.winningNumber}</span>
+        {/* Winning number + chip count row */}
+        <div style={styles.infoRow}>
+          <div style={styles.infoCell}>
+            <div style={styles.infoCellLabel}>Выпавший номер</div>
+            <div style={styles.infoCellValue}>
+              {round ? round.winningNumber : "—"}
             </div>
-
-            {/* Bets breakdown */}
-            <div style={styles.betsBox}>
-              {round.bets.map((bet, i) => (
-                <div key={i} style={styles.betRow}>
-                  <span style={{ ...styles.betChip, background: chipColor(bet.denomination), color: chipTextColor(bet.denomination) }}>
-                    {bet.denomination}
-                  </span>
-                  <span style={styles.betLabel}>{bet.label}</span>
-                </div>
-              ))}
+          </div>
+          <div style={styles.infoCell}>
+            <div style={styles.infoCellLabel}>Фишек в задаче</div>
+            <div style={styles.infoCellValue}>
+              {round ? round.bets.length : "—"}
             </div>
+          </div>
+        </div>
 
-            {/* Answer input */}
-            {phase === "playing" && (
-              <div style={styles.inputRow}>
-                <span style={styles.inputLabel}>Итого выплата:</span>
-                <input
-                  ref={inputRef}
-                  type="number"
-                  value={userInput}
-                  onChange={e => setUserInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ваш ответ"
-                  style={styles.input}
-                />
-                <button
-                  style={styles.btnCheck}
-                  onClick={handleCheck}
-                  disabled={!userInput.trim()}
-                >
-                  Проверить
-                </button>
+        {/* Bets breakdown (показываем только когда есть раунд) */}
+        {round && (phase === "playing" || phase === "checked") && (
+          <div style={styles.betsBox}>
+            {round.bets.map((bet, i) => (
+              <div key={i} style={styles.betRow}>
+                <span style={{ ...styles.betChip, background: chipColor(bet.denomination), color: chipTextColor(bet.denomination) }}>
+                  {bet.denomination}
+                </span>
+                <span style={styles.betLabel}>{bet.label}</span>
               </div>
-            )}
-
-            {/* Result */}
-            {phase === "checked" && checkResult && (
-              <div style={styles.resultRow}>
-                <div style={{ ...styles.resultBadge, background: checkResult === "correct" ? "#1a6e1a" : "#7a1a1a" }}>
-                  {checkResult === "correct"
-                    ? `✅ Верно! Правильный ответ: ${round.correctAnswer}`
-                    : `❌ Неверно. Правильный ответ: ${round.correctAnswer}`}
-                </div>
-                <button style={styles.btnSpin} onClick={handleSpin}>SPIN снова</button>
-              </div>
-            )}
-          </>
+            ))}
+          </div>
         )}
 
-        {/* Grid toggle — always visible */}
+        {/* SPIN button */}
+        <button
+          style={{ ...styles.btnSpin, opacity: phase === "spinning" ? 0.5 : 1, cursor: phase === "spinning" ? "not-allowed" : "pointer" }}
+          onClick={handleSpin}
+          disabled={phase === "spinning"}
+        >
+          SPIN
+        </button>
+
+        {/* Answer block */}
+        <div style={styles.answerBlock}>
+          <div style={styles.answerLabel}>Ваш ответ</div>
+          <div style={styles.answerRow}>
+            <input
+              ref={inputRef}
+              type="number"
+              value={userInput}
+              onChange={e => setUserInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Введите сумму"
+              style={styles.input}
+              disabled={phase !== "playing"}
+            />
+            <button
+              style={{ ...styles.btnCheck, opacity: phase !== "playing" || !userInput.trim() ? 0.5 : 1, cursor: phase !== "playing" || !userInput.trim() ? "not-allowed" : "pointer" }}
+              onClick={handleCheck}
+              disabled={phase !== "playing" || !userInput.trim()}
+            >
+              ПРОВЕРИТЬ
+            </button>
+          </div>
+
+          {/* Result status */}
+          <div style={{
+            ...styles.resultStatus,
+            color: checkResult === "correct" ? "#4caf50" : checkResult === "wrong" ? "#e53935" : "#a08840",
+          }}>
+            {checkResult === "correct"
+              ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
+              : checkResult === "wrong"
+                ? `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`
+                : "Результат: ожидает ответа"}
+          </div>
+        </div>
+
+        {/* Grid toggle */}
         <button
           onClick={() => setShowGrid(v => !v)}
-          style={{ ...styles.btnGrid, background: showGrid ? "#ffd700" : "#1a1a1a", color: showGrid ? "#111" : "#ffd700" }}
+          style={{ ...styles.btnGrid, background: showGrid ? "#d4a832" : "transparent", color: showGrid ? "#111" : "#d4a832" }}
         >
           {showGrid ? "Скрыть сетку" : "Показать сетку"}
         </button>
@@ -281,9 +290,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
-    padding: "12px 16px",
-    gap: "14px",
+    padding: "16px 16px 24px",
+    gap: "16px",
   },
   spinOverlay: {
     position: "absolute", inset: 0,
@@ -291,89 +299,153 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center", justifyContent: "center",
     gap: "12px",
   },
-  spinBall: { fontSize: "52px", animation: "spin 0.6s linear infinite" },
-  spinText: { fontSize: "22px", fontWeight: 700, color: "#ffd700", letterSpacing: "0.1em" },
-  bottomPanel: {
+  spinBall: { fontSize: "52px" },
+  spinText: { fontSize: "22px", fontWeight: 700, color: "#d4a832", letterSpacing: "0.1em" },
+
+  // ── ЗАДАНИЕ box ──────────────────────────────────────────────────────────
+  zadanieBox: {
     width: "100%",
-    maxWidth: "900px",
+    maxWidth: "560px",
+    background: "#0d0d0d",
+    border: "1px solid #d4a832",
+    borderRadius: "6px",
+    padding: "20px 24px 16px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    gap: "12px",
+    gap: "14px",
   },
-  btnSpin: {
-    padding: "10px 48px",
-    fontSize: "18px",
-    fontWeight: 800,
-    letterSpacing: "0.15em",
-    borderRadius: "8px",
-    border: "2px solid #ffd700",
-    background: "#ffd700",
-    color: "#111",
-    cursor: "pointer",
-    transition: "all 0.15s",
+  zadanieTitle: {
+    fontFamily: "'Times New Roman', Georgia, serif",
+    fontSize: "22px",
+    fontWeight: 700,
+    letterSpacing: "0.22em",
+    color: "#d4a832",
+    textAlign: "center",
   },
-  winRow: {
-    display: "flex", alignItems: "center", gap: "14px",
+  zadanieDivider: {
+    height: "1px",
+    background: "#d4a832",
+    opacity: 0.4,
+    marginTop: "-6px",
   },
-  winLabel: { fontSize: "18px", color: "#aaa", fontWeight: 500 },
-  winNumber: {
-    fontSize: "36px", fontWeight: 900, color: "#ffd700",
-    background: "#1a1a00", border: "2px solid #ffd700",
-    borderRadius: "8px", padding: "2px 20px",
-    minWidth: "64px", textAlign: "center",
+  infoRow: {
+    display: "flex",
+    gap: "16px",
   },
-  betsBox: {
-    background: "#181818",
-    border: "1px solid #333",
-    borderRadius: "10px",
-    padding: "10px 18px",
+  infoCell: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
     gap: "6px",
-    width: "100%",
-    maxWidth: "520px",
+  },
+  infoCellLabel: {
+    fontSize: "12px",
+    color: "#a0a0a0",
+    letterSpacing: "0.03em",
+  },
+  infoCellValue: {
+    background: "#161616",
+    border: "1px solid #d4a832",
+    borderRadius: "6px",
+    padding: "10px 0",
+    fontSize: "32px",
+    fontWeight: 800,
+    color: "#d4a832",
+    textAlign: "center",
+    letterSpacing: "0.04em",
+    minHeight: "58px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // ── Bets ─────────────────────────────────────────────────────────────────
+  betsBox: {
+    background: "#111",
+    border: "1px solid #2a2410",
+    borderRadius: "6px",
+    padding: "8px 12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
   },
   betRow: {
-    display: "flex", alignItems: "center", gap: "10px", fontSize: "15px",
+    display: "flex", alignItems: "center", gap: "10px", fontSize: "13px",
   },
   betChip: {
     display: "inline-flex", alignItems: "center", justifyContent: "center",
-    width: "26px", height: "26px", borderRadius: "50%",
-    fontWeight: 800, fontSize: "13px",
-    border: "2px solid #ffd700", flexShrink: 0,
+    width: "24px", height: "24px", borderRadius: "50%",
+    fontWeight: 800, fontSize: "11px",
+    border: "1.5px solid #d4a832", flexShrink: 0,
   },
-  betLabel: { flex: 1, color: "#e0e0e0" },
-  betCalc: { color: "#ffd700", fontWeight: 700, fontVariantNumeric: "tabular-nums" },
-  inputRow: {
-    display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", justifyContent: "center",
+  betLabel: { flex: 1, color: "#ccc" },
+
+  // ── SPIN button ───────────────────────────────────────────────────────────
+  btnSpin: {
+    width: "100%",
+    padding: "13px 0",
+    fontSize: "16px",
+    fontWeight: 800,
+    letterSpacing: "0.2em",
+    borderRadius: "6px",
+    border: "1px solid #7a1515",
+    background: "#7a1515",
+    color: "#fff",
+    transition: "all 0.15s",
   },
-  inputLabel: { fontSize: "16px", color: "#bbb", fontWeight: 600 },
+
+  // ── Answer block ──────────────────────────────────────────────────────────
+  answerBlock: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  answerLabel: {
+    fontSize: "13px",
+    color: "#a0a0a0",
+  },
+  answerRow: {
+    display: "flex",
+    gap: "10px",
+  },
   input: {
-    padding: "8px 14px", fontSize: "18px", fontWeight: 700,
-    borderRadius: "8px", border: "2px solid #ffd700",
-    background: "#111", color: "#ffd700",
-    width: "130px", outline: "none",
-    textAlign: "center",
+    flex: 1,
+    padding: "10px 14px",
+    fontSize: "15px",
+    fontWeight: 600,
+    borderRadius: "6px",
+    border: "1px solid #d4a832",
+    background: "#111",
+    color: "#e8e8e8",
+    outline: "none",
   },
   btnCheck: {
-    padding: "9px 28px", fontSize: "15px", fontWeight: 700,
-    borderRadius: "8px", border: "2px solid #ffd700",
-    background: "#ffd700", color: "#111", cursor: "pointer",
+    padding: "10px 18px",
+    fontSize: "13px",
+    fontWeight: 700,
+    letterSpacing: "0.1em",
+    borderRadius: "6px",
+    border: "1px solid #d4a832",
+    background: "transparent",
+    color: "#d4a832",
+    transition: "all 0.15s",
+    whiteSpace: "nowrap",
   },
-  resultRow: {
-    display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
+  resultStatus: {
+    fontSize: "13px",
+    letterSpacing: "0.02em",
   },
-  resultBadge: {
-    padding: "10px 28px", borderRadius: "8px",
-    fontSize: "17px", fontWeight: 700, color: "#fff",
-    border: "1px solid rgba(255,255,255,0.2)",
-    letterSpacing: "0.04em",
-  },
+
+  // ── Grid toggle ───────────────────────────────────────────────────────────
   btnGrid: {
-    padding: "6px 22px", borderRadius: "8px", fontWeight: 600,
-    fontSize: "13px", letterSpacing: "0.05em", cursor: "pointer",
-    transition: "all 0.15s", border: "2px solid #ffd700",
-    marginTop: "4px",
+    alignSelf: "center",
+    padding: "5px 18px",
+    borderRadius: "6px",
+    fontWeight: 600,
+    fontSize: "12px",
+    letterSpacing: "0.05em",
+    cursor: "pointer",
+    transition: "all 0.15s",
+    border: "1px solid #d4a832",
   },
 };
