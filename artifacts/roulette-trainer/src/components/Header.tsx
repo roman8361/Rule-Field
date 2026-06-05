@@ -21,21 +21,6 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* ── Buttons ── */}
-        <div style={s.actions}>
-          <button style={s.btnLogin}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,168,50,0.12)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-          >
-            ВХОД
-          </button>
-          <button style={s.btnStart}
-            onMouseEnter={e => { e.currentTarget.style.background = "#c49a20"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#d4a832"; }}
-          >
-            НАЧАТЬ
-          </button>
-        </div>
 
       </div>
     </header>
