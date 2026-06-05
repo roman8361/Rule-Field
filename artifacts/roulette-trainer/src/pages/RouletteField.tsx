@@ -287,7 +287,7 @@ export default function RouletteField() {
           }}>
             {checkResult === "correct"
               ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
-              : `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`}
+              : `❌ Неверно.`}
           </div>
         )}
 
