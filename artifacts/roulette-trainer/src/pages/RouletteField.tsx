@@ -252,16 +252,16 @@ export default function RouletteField() {
           </div>
 
           {/* Result status */}
-          <div style={{
-            ...styles.resultStatus,
-            color: checkResult === "correct" ? "#4caf50" : checkResult === "wrong" ? "#e53935" : "#a08840",
-          }}>
-            {checkResult === "correct"
-              ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
-              : checkResult === "wrong"
-                ? `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`
-                : "Результат: ожидает ответа"}
-          </div>
+          {checkResult && (
+            <div style={{
+              ...styles.resultStatus,
+              color: checkResult === "correct" ? "#4caf50" : "#e53935",
+            }}>
+              {checkResult === "correct"
+                ? `✅ Верно! Правильный ответ: ${round?.correctAnswer}`
+                : `❌ Неверно. Правильный ответ: ${round?.correctAnswer}`}
+            </div>
+          )}
         </div>
 
         {/* Grid toggle */}
