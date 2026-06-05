@@ -348,7 +348,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: "12px",
     flex: 1,
     minWidth: 0,
   },
