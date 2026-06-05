@@ -318,7 +318,7 @@ const styles: Record<string, React.CSSProperties> = {
   // ── ЗАДАНИЕ box ──────────────────────────────────────────────────────────
   zadanieBox: {
     width: "100%",
-    maxWidth: "960px",
+    maxWidth: `${W}px`,
     background: "#0d0d0d",
     border: "1px solid #d4a832",
     borderRadius: "8px",
