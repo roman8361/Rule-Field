@@ -64,7 +64,7 @@ function Chip({ bet }: { bet: BetDef }) {
       <text
         x={bet.chipX} y={bet.chipY}
         textAnchor="middle" dominantBaseline="central"
-        fontSize="20" fontWeight="bold" fill={text}
+        fontSize="26" fontWeight="bold" fill={text}
         style={{ fontFamily: "sans-serif", userSelect: "none" }}
       >
         {bet.denomination}
